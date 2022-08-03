@@ -7,15 +7,17 @@ const { VueLoaderPlugin } = require('vue-loader');
 module.exports = {
   context: path.resolve(),
   mode: 'development',
+  devtool: 'cheap-module-source-map',
   entry: {
     client: './src/entry-client.js',
-    server: './src/entry-server.js',
+    // server: './src/entry-server.js',
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'js/[name].[contenthash:8].js',
     chunkFilename: 'js/[name].[contenthash:6].chunk.js',
     clean: true,
+    publicPath: '/',
   },
   watchOptions: {
     // 不监听的 node_modules 目录下的文件
@@ -31,8 +33,10 @@ module.exports = {
     //     // pathRewrite: { '^/api': '' }
     //   }
     // },
+    historyApiFallback: true,
     open: true,
     port: 8088,
+    hot: true,
   },
   resolve: {
     alias: {
@@ -47,12 +51,13 @@ module.exports = {
         test: /\.css$/i,
         exclude: /node_modules/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-            options: {
-              // publicPath: '//cdn2.com/id/'
-            },
-          },
+          // {
+          //   loader: MiniCssExtractPlugin.loader,
+          //   options: {
+          //     // publicPath: '//cdn2.com/id/'
+          //   },
+          // },
+          'vue-style-loader',
           'css-loader',
         ],
       },
@@ -60,9 +65,10 @@ module.exports = {
         test: /\.s[ac]ss$/i,
         exclude: /node_modules/,
         use: [
-          {
-            loader: MiniCssExtractPlugin.loader,
-          },
+          // {
+          //   loader: MiniCssExtractPlugin.loader,
+          // },
+          'vue-style-loader',
           'css-loader',
           'postcss-loader',
           'sass-loader',
@@ -90,4 +96,9 @@ module.exports = {
     }),
     new VueLoaderPlugin(),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
 };

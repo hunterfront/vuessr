@@ -16,6 +16,10 @@ export function createRouter() {
         path: '/baz',
         component: () => import('./components/Baz.vue'),
       },
+      {
+        path: '/item/:id',
+        component: () => import('./components/Item.vue'),
+      },
     ],
   });
 }

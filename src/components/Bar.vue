@@ -1,5 +1,5 @@
 <template>
-  <div class="bar">bar</div>
+  <div class="bar">bar2</div>
 </template>
 
 <script>
@@ -8,6 +8,6 @@ export default {};
 
 <style lang="sass" scoped>
 .bar {
-  color: green;
+  color: pink;
 }
 </style>
