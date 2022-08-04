@@ -100,5 +100,6 @@ module.exports = {
     splitChunks: {
       chunks: 'all',
     },
+    runtimeChunk: true,
   },
 };
