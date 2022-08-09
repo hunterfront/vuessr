@@ -8,6 +8,6 @@ export default {};
 
 <style lang="sass" scoped>
 .bar {
-  color: pink;
+  color: yellow;
 }
 </style>

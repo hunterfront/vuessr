@@ -2,19 +2,27 @@ const path = require('path');
 const express = require('express');
 const server = express();
 const { createBundleRenderer } = require('vue-server-renderer');
-const serverBundle = require('./dist/vue-ssr-server-bundle.json');
-const clientManifest = require('./dist/vue-ssr-client-manifest.json');
-const resolve = (file) => path.resolve(__dirname, file);
+const setupDevServer = require('./setup-dev-server');
+// const serverBundle = require('./dist/vue-ssr-server-bundle.json');
+// const clientManifest = require('./dist/vue-ssr-client-manifest.json');
+// const template = require('fs').readFileSync('./index.template.html', 'utf-8');
+// const resolve = (file) => path.resolve(__dirname, file);
+const templatePath = path.resolve(__dirname, './index.template.html');
 
-const renderer = createBundleRenderer(serverBundle, {
-  // template,
-  clientManifest,
-  runInNewContext: false,
-  // basedir: resolve('./dist'),
-});
-// server.use('/dist', express.static('./dist'));
+let renderer;
 
-server.get('*', (req, res) => {
+const createRenderer = function (bundle, { template, clientManifest }) {
+  renderer = createBundleRenderer(bundle, {
+    template,
+    clientManifest,
+    runInNewContext: false,
+  });
+};
+
+const readyPromise = setupDevServer(server, templatePath, createRenderer);
+server.use('/', express.static('./dist'));
+
+const render = (req, res) => {
   const context = {
     url: req.url,
   };
@@ -27,18 +35,18 @@ server.get('*', (req, res) => {
         res.status(500).end('Internal Server Error');
       }
     } else {
-      res.end(`
-      <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <title>Hello</title>
-          <meta charset="utf-8" />
-        </head>
-        <body>${html}</body>
-      </html>
-    `);
+      res.end(html);
     }
+  });
+};
+
+server.get('*', (req, res) => {
+  console.log('in server');
+  readyPromise.then(() => {
+    render(req, res);
   });
 });
 
-server.listen(8088);
+server.listen(8088, function () {
+  console.log('server listen on 8088');
+});
