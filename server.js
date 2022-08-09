@@ -1,25 +1,42 @@
+const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const server = express();
 const { createBundleRenderer } = require('vue-server-renderer');
-const setupDevServer = require('./setup-dev-server');
+const isProd = process.env.NODE_ENV === 'production';
 // const serverBundle = require('./dist/vue-ssr-server-bundle.json');
 // const clientManifest = require('./dist/vue-ssr-client-manifest.json');
 // const template = require('fs').readFileSync('./index.template.html', 'utf-8');
 // const resolve = (file) => path.resolve(__dirname, file);
-const templatePath = path.resolve(__dirname, './index.template.html');
+const templatePath = path.resolve(__dirname, './src/index.template.html');
 
 let renderer;
-
+let readyPromise;
 const createRenderer = function (bundle, { template, clientManifest }) {
-  renderer = createBundleRenderer(bundle, {
+  return createBundleRenderer(bundle, {
     template,
     clientManifest,
     runInNewContext: false,
   });
 };
+if (isProd) {
+  const template = fs.readFileSync(templatePath, 'utf-8');
+  const bundle = require('./dist/vue-ssr-server-bundle.json');
+  const clientManifest = require('./dist/vue-ssr-client-manifest.json');
+  renderer = createRenderer(bundle, {
+    template,
+    clientManifest,
+  });
+} else {
+  readyPromise = require('./build/setup-dev-server')(
+    server,
+    templatePath,
+    (bundle, options) => {
+      renderer = createRenderer(bundle, options);
+    }
+  );
+}
 
-const readyPromise = setupDevServer(server, templatePath, createRenderer);
 server.use('/', express.static('./dist'));
 
 const render = (req, res) => {
@@ -40,12 +57,17 @@ const render = (req, res) => {
   });
 };
 
-server.get('*', (req, res) => {
-  console.log('in server');
-  readyPromise.then(() => {
-    render(req, res);
-  });
-});
+server.get(
+  '*',
+  isProd
+    ? render
+    : (req, res) => {
+        console.log('in server');
+        readyPromise.then(() => {
+          render(req, res);
+        });
+      }
+);
 
 server.listen(8088, function () {
   console.log('server listen on 8088');

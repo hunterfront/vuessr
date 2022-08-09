@@ -6,7 +6,7 @@ module.exports = {
   context: path.resolve(),
   mode: 'development',
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, '../dist'),
     publicPath: '/',
   },
   watchOptions: {
