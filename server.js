@@ -4,10 +4,6 @@ const express = require('express');
 const server = express();
 const { createBundleRenderer } = require('vue-server-renderer');
 const isProd = process.env.NODE_ENV === 'production';
-// const serverBundle = require('./dist/vue-ssr-server-bundle.json');
-// const clientManifest = require('./dist/vue-ssr-client-manifest.json');
-// const template = require('fs').readFileSync('./index.template.html', 'utf-8');
-// const resolve = (file) => path.resolve(__dirname, file);
 const templatePath = path.resolve(__dirname, './src/index.template.html');
 
 let renderer;

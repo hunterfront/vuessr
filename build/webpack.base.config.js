@@ -1,10 +1,11 @@
+const webpack = require('webpack');
 const path = require('path');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { VueLoaderPlugin } = require('vue-loader');
+const isProd = process.env.NODE_ENV === 'production';
 
 module.exports = {
+  mode: isProd ? 'production' : 'development',
   context: path.resolve(),
-  mode: 'development',
   output: {
     path: path.resolve(__dirname, '../dist'),
     publicPath: '/',
@@ -24,33 +25,6 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.css$/i,
-        exclude: /node_modules/,
-        use: [
-          // {
-          //   loader: MiniCssExtractPlugin.loader,
-          //   options: {
-          //     // publicPath: '//cdn2.com/id/'
-          //   },
-          // },
-          'vue-style-loader',
-          'css-loader',
-        ],
-      },
-      {
-        test: /\.s[ac]ss$/i,
-        exclude: /node_modules/,
-        use: [
-          // {
-          //   loader: MiniCssExtractPlugin.loader,
-          // },
-          'vue-style-loader',
-          'css-loader',
-          'postcss-loader',
-          'sass-loader',
-        ],
-      },
-      {
         test: /\.vue$/,
         exclude: /node_modules/,
         use: ['vue-loader'],
@@ -63,10 +37,9 @@ module.exports = {
     ],
   },
   plugins: [
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].[contenthash].css',
-      chunkFilename: 'css/[name].[contenthash].chunk.css',
-    }),
     new VueLoaderPlugin(),
+    new webpack.DefinePlugin({
+      __SERVICE__: JSON.stringify(process.env.SERVICE),
+    }),
   ],
 };

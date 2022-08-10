@@ -4,6 +4,25 @@ const nodeExternals = require('webpack-node-externals');
 const baseConfig = require('./webpack.base.config.js');
 const VueSSRServerPlugin = require('vue-server-renderer/server-plugin');
 
+// 获取处理样式的Loaders
+const getStyleLoaders = (preProcessor) => {
+  return [
+    'vue-style-loader',
+    'css-loader',
+    {
+      loader: 'postcss-loader',
+      options: {
+        postcssOptions: {
+          plugins: [
+            'postcss-preset-env', // 能解决大多数样式兼容性问题
+          ],
+        },
+      },
+    },
+    preProcessor,
+  ].filter(Boolean);
+};
+
 module.exports = merge(baseConfig, {
   // 将 entry 指向应用程序的 server entry 文件
   entry: {
@@ -11,6 +30,20 @@ module.exports = merge(baseConfig, {
   },
   output: {
     filename: 'server-bundle.js',
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        exclude: /node_modules/,
+        use: getStyleLoaders(),
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        exclude: /node_modules/,
+        use: getStyleLoaders('sass-loader'),
+      },
+    ],
   },
   // 这允许 webpack 以 Node 适用方式(Node-appropriate fashion)处理动态导入(dynamic import)，
   // 并且还会在编译 Vue 组件时，
