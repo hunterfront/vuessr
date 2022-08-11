@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const server = express();
+const microcache = require('route-cache');
 const { createBundleRenderer } = require('vue-server-renderer');
 const isProd = process.env.NODE_ENV === 'production';
 const templatePath = path.resolve(__dirname, './src/index.template.html');
@@ -32,9 +33,8 @@ if (isProd) {
     }
   );
 }
-
 server.use('/', express.static('./dist'));
-
+server.use(microcache.cacheSeconds(1, (req) => req.originalUrl));
 const render = (req, res) => {
   const context = {
     url: req.url,
@@ -48,7 +48,7 @@ const render = (req, res) => {
         res.status(500).end('Internal Server Error');
       }
     } else {
-      res.end(html);
+      res.send(html);
     }
   });
 };
