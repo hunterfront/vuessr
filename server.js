@@ -33,7 +33,15 @@ if (isProd) {
     }
   );
 }
-server.use('/', express.static('./dist'));
+server.use(
+  '/',
+  express.static('./dist', {
+    maxAge: '30d',
+    // setHeaders: (res, path) => {
+    //   res.setHeader('Cache-Control', 'no-cache');
+    // },
+  })
+);
 server.use(microcache.cacheSeconds(1, (req) => req.originalUrl));
 const render = (req, res) => {
   const context = {

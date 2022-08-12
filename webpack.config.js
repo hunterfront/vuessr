@@ -95,6 +95,9 @@ module.exports = {
       chunkFilename: 'css/[name].[contenthash].chunk.css',
     }),
     new VueLoaderPlugin(),
+    new webpack.DefinePlugin({
+      __SERVICE__: JSON.stringify('test'),
+    }),
   ],
   optimization: {
     splitChunks: {
