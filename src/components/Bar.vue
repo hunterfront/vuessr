@@ -1,5 +1,8 @@
 <template>
-  <div class="bar">bar2</div>
+  <div class="bar">
+    <div>bar</div>
+    <img src="../images/jielong-share.png" alt="" srcset="" />
+  </div>
 </template>
 
 <script>

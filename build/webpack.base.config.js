@@ -1,4 +1,5 @@
 const webpack = require('webpack');
+const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
 const isProd = process.env.NODE_ENV === 'production';
@@ -25,6 +26,18 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(png|jpe?g|gif|webp)$/,
+        type: 'asset',
+        parser: {
+          dataUrlCondition: {
+            maxSize: 10 * 1024, // 小于10kb的图片会被base64处理
+          },
+        },
+        generator: {
+          filename: 'images/[name][ext]',
+        },
+      },
+      {
         test: /\.vue$/,
         exclude: /node_modules/,
         use: ['vue-loader'],
@@ -42,4 +55,36 @@ module.exports = {
       __SERVICE__: JSON.stringify(process.env.SERVICE),
     }),
   ],
+  optimization: {
+    // 压缩的操作
+    minimizer: [
+      new ImageMinimizerPlugin({
+        minimizer: {
+          implementation: ImageMinimizerPlugin.imageminGenerate,
+          options: {
+            plugins: [
+              ['gifsicle', { interlaced: true }],
+              ['jpegtran', { progressive: true }],
+              ['optipng', { optimizationLevel: 5 }],
+              [
+                'svgo',
+                {
+                  plugins: [
+                    'preset-default',
+                    'prefixIds',
+                    {
+                      name: 'sortAttrs',
+                      params: {
+                        xmlnsOrder: 'alphabetical',
+                      },
+                    },
+                  ],
+                },
+              ],
+            ],
+          },
+        },
+      }),
+    ],
+  },
 };
